@@ -1,0 +1,161 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:MauiTodoList"
+             x:Class="MauiTodoList.MainPage"
+             Title="To-Do List">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Color x:Key="BackgroundColor">#ffffff</Color>
+            <Color x:Key="TextColor">#333</Color>
+            <Color x:Key="CardBackground">#ecf0f1</Color>
+
+            <Style TargetType="ContentPage">
+                <Setter Property="BackgroundColor" Value="{StaticResource BackgroundColor}" />
+            </Style>
+            <Style TargetType="Label">
+                <Setter Property="TextColor" Value="{StaticResource TextColor}" />
+            </Style>
+            <Style TargetType="Button">
+                <Setter Property="BackgroundColor" Value="#3498db" />
+                <Setter Property="TextColor" Value="White" />
+                <Setter Property="CornerRadius" Value="8" />
+                <Setter Property="FontSize" Value="20" />
+            </Style>
+            <Style TargetType="Entry">
+                <Setter Property="FontSize" Value="16" />
+                <Setter Property="TextColor" Value="{StaticResource TextColor}" />
+                <Setter Property="PlaceholderColor" Value="#888" />
+                <Setter Property="VerticalOptions" Value="Center"/>
+            </Style>
+            <Style x:Key="EntryBorderStyle" TargetType="Border">
+                <Setter Property="StrokeThickness" Value="1" />
+                <Setter Property="Stroke" Value="#ccc" />
+                <Setter Property="StrokeShape">
+                    <Setter.Value>
+                        <RoundRectangle CornerRadius="8" />
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="Padding" Value="8" />
+            </Style>
+            <Style x:Key="MainContainerBorderStyle" TargetType="Border">
+                <Setter Property="Padding" Value="20" />
+                <Setter Property="Margin" Value="10" />
+                <Setter Property="BackgroundColor" Value="#fff" />
+                <Setter Property="StrokeShape">
+                    <Setter.Value>
+                        <RoundRectangle CornerRadius="12" />
+                    </Setter.Value>
+                </Setter>
+                <Setter Property="StrokeThickness" Value="0" />
+            </Style>
+            <Style x:Key="TaskListItem" TargetType="Grid">
+                <Setter Property="BackgroundColor" Value="{StaticResource CardBackground}" />
+                <Setter Property="Padding" Value="10,8" />
+                <Setter Property="Margin" Value="0,4" />
+                <Setter Property="HeightRequest" Value="50" />
+                <Setter Property="ColumnDefinitions" Value="Auto,*,Auto" />
+                <Setter Property="ColumnSpacing" Value="10" />
+                <Setter Property="VerticalOptions" Value="Center" />
+                <Setter Property="MinimumHeightRequest" Value="40"/>
+            </Style>
+            <Style x:Key="CompletedTaskListItem" TargetType="Grid" BasedOn="{StaticResource TaskListItem}">
+                <Setter Property="BackgroundColor" Value="#dfe6e9" />
+            </Style>
+            <Style x:Key="NoTasksMessage" TargetType="Label">
+                <Setter Property="HorizontalTextAlignment" Value="Center" />
+                <Setter Property="TextColor" Value="#888" />
+                <Setter Property="Margin" Value="0,10,0,0" />
+                <Setter Property="IsVisible" Value="False" />
+            </Style>
+
+            <DataTemplate x:Key="TaskTemplate">
+                <Grid Style="{StaticResource TaskListItem}">
+                    <CheckBox IsChecked="{Binding Completed}"
+                              Grid.Column="0"
+                              CheckedChanged="OnTaskCompleted"
+                              Color="#3498db"
+                              VerticalOptions="Center" />
+                    <Label Text="{Binding Text}"
+                           Grid.Column="1"
+                           VerticalOptions="Center"
+                           FontSize="16"
+                           LineBreakMode="TailTruncation"
+                           TextColor="{StaticResource TextColor}"  BackgroundColor="Transparent" >
+                        <Label.Triggers>
+                            <DataTrigger TargetType="Label"
+                                         Binding="{Binding Completed}"
+                                         Value="True">
+                                <Setter Property="TextDecorations" Value="Strikethrough" />
+                                <Setter Property="TextColor" Value="#777" />
+                            </DataTrigger>
+                        </Label.Triggers>
+                    </Label>
+                    <ImageButton Source="delete_icon.png"
+                                 Grid.Column="2"
+                                 WidthRequest="24"
+                                 HeightRequest="24"
+                                 VerticalOptions="Center"
+                                 BackgroundColor="Transparent" 
+                                 Clicked="OnDeleteTaskClicked"
+                                 CommandParameter="{Binding .}" />
+                </Grid>
+
+            </DataTemplate>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <ScrollView>
+        <VerticalStackLayout Spacing="20" Padding="10">
+            <Border Style="{StaticResource MainContainerBorderStyle}" >
+                <VerticalStackLayout Spacing="15">
+                    <Label Text="📝 To-Do List"
+                           FontSize="28"
+                           FontAttributes="Bold"
+                           HorizontalTextAlignment="Center"
+                           TextColor="#2c3e50" />
+
+                    <Label x:Name="TodayDateLabel"
+                           FontSize="16"
+                           HorizontalTextAlignment="Center"
+                           FontAttributes="Bold"
+                           TextColor="#555" />
+
+                    <Grid ColumnDefinitions="*, Auto" ColumnSpacing="10">
+                        <Border Grid.Column="0" Style="{StaticResource EntryBorderStyle}">
+                            <Entry x:Name="NewTaskEntry"
+                                   Placeholder="Add a new task"
+                                   ReturnType="Done"
+                                   Completed="OnAddTaskClicked"/>
+                        </Border>
+                        <Button Text="➕ Add"
+                                Grid.Column="1"
+                                Clicked="OnAddTaskClicked"
+                                BackgroundColor="#3498db"
+                                Padding="10,5"/>
+                    </Grid>
+                    <!-- Validation message -->
+                    <Label x:Name="ValidationMessage" Text="⚠️ Please enter a task!" TextColor="Red" FontSize="14" IsVisible="False" HorizontalOptions="Start" Margin="5,0,0,0"/>
+                    <Label Text="Pending Tasks"
+                           FontSize="22"
+                           FontAttributes="Bold"
+                           HorizontalTextAlignment="Center"
+                           Margin="0,10,0,0"/>
+                    <CollectionView x:Name="TodoListCollectionView"
+                                    ItemTemplate="{StaticResource TaskTemplate}" />
+                    <Label x:Name="NoPendingTasksMessage" Style="{StaticResource NoTasksMessage}" Text="No pending tasks 🎉" />
+
+                    <Label Text="Completed Tasks"
+                           FontSize="22"
+                           FontAttributes="Bold"
+                           HorizontalTextAlignment="Center"
+                           Margin="0,20,0,0"/>
+                    <CollectionView x:Name="CompletedListCollectionView"
+                                    ItemTemplate="{StaticResource TaskTemplate}" />
+                    <Label x:Name="NoCompletedTasksMessage" Style="{StaticResource NoTasksMessage}" Text="No completed tasks yet" />
+                </VerticalStackLayout>
+            </Border>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

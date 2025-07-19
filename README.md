@@ -15,6 +15,18 @@ It supports Android deployment with a focus on offline-first task management.
 - XAML UI
 - Android platform (for now) 
 
+## 🧪 Screenshots
+
+**No Tasks**
+![Added](Resources/Images/asset_1.png) 
+
+**Added Tasks**
+![Added](Resources/Images/asset_2.png) 
+
+**Validation**
+![Added](Resources/Images/asset_3.png) 
+
+
 ## 🚀 Getting Started (Developers)
 
 ```bash
